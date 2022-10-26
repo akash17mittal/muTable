@@ -12,7 +12,9 @@ class Camera:
         self.pipeline.start(config)
 
     def get_current_image(self):
+        print("Here")
         frames = self.pipeline.wait_for_frames()
+        print("There")
         color_frame = frames.get_color_frame()
         color_image = np.asanyarray(color_frame.get_data())
         return color_image

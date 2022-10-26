@@ -1,14 +1,9 @@
 from dataclasses import dataclass
-from enum import Enum
-
-
-class Hand(Enum):
-    LEFT = 1
-    RIGHT = 2
 
 
 @dataclass
-class Tap:
+class SoundEvent:
     """Data Class for Tap Object"""
-    hand: Hand
     intensity: float
+    locationX: float
+    locationY: float

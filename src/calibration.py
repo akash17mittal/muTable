@@ -28,7 +28,7 @@ class ArucoBasedCalibration:
         for i in range(ids.shape[0]):
             self.image_plane_coordinates[ids[i][0]] = corners[i][0]
 
-        print(self.image_plane_coordinates)
+        print("Image Plane Coordinates - ", self.image_plane_coordinates)
 
     def start_calibrating(self, max_tries=20):
         try_count = 0

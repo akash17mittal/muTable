@@ -1,5 +1,5 @@
 import time
-from tap import Tap
+from tap import *
 
 
 class MockTapReceiver:
@@ -11,5 +11,5 @@ class MockTapReceiver:
     def start_receiving(self):
         print("Start Receiving Tap Events")
         while 1:
-            self.tap_sender_pipe_connection.send(Tap(0.1))
+            self.tap_sender_pipe_connection.send(Tap(Hand.LEFT, 0.1))
             time.sleep(3)

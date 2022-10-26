@@ -4,9 +4,10 @@ import numpy as np
 
 class Drums:
 
-    def __init__(self, width=1080, height=1080):
+    def __init__(self, width=1080, height=1080, sound_produce_event_receiver_conn=None):
         self.height = height
         self.width = width
+        self.sound_produce_event_receiver_conn = sound_produce_event_receiver_conn
 
     def get_image(self):
         width = self.width
@@ -38,3 +39,8 @@ class Drums:
                                int(width * piece_widths[i] / 5), (0, 0, 0), -1)
             drums = cv2.circle(drums, (int(piece_x_coords[i] * width), int(piece_y_coords[i] * height)),
                                int(width * piece_widths[i] / 2), dark_yellow_color, int(0.025 * width))
+
+    def start_producing_sound(self):
+        while 1:
+            sound_event = self.sound_produce_event_receiver_conn.recv()
+            print("Sound Produced = ", sound_event)
