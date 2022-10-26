@@ -14,10 +14,9 @@ class Piece:
 
 class Drums:
 
-    def __init__(self, width=1080, height=1080, sound_produce_event_receiver_conn=None):
+    def __init__(self, width=1080, height=1080):
         self.height = height
         self.width = width
-        self.sound_produce_event_receiver_conn = sound_produce_event_receiver_conn
         self.pieces = self.get_drum_pieces(width, height)
 
     def get_drum_pieces(self, width, height):
@@ -54,14 +53,10 @@ class Drums:
 
         return drums
 
-    def start_producing_sound(self):
-        while 1:
-            sound_event = self.sound_produce_event_receiver_conn.recv()
-            print("Sound Produced = ", sound_event)
-
 
 def start_playing_drums(width, height, sound_signal_receiver_conn):
-    drums = Drums(width, height, sound_signal_receiver_conn)
+    drums = Drums(width, height)
     cv2.imwrite("./drums.jpg", drums.get_image())
-    drums.get_image()
-    drums.start_producing_sound()
+    while 1:
+        sound_event = sound_signal_receiver_conn.recv()
+        print("Sound Produced = ", sound_event)

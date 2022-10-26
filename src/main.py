@@ -2,7 +2,7 @@ import multiprocessing
 from mock_tap_receiver import start_tap_receiving
 from calibration import ArucoBasedCalibration
 from hand_location_detector import start_hand_tracking
-from instruments.drums.drums import start_playing_drums
+from instruments.drums.drums import start_playing_drums, Drums
 from utils import get_aruco_image
 from projection import start_projecting
 
@@ -32,6 +32,11 @@ if __name__ == "__main__":
 
     print(calibration_matrix)
 
+    drums = Drums(width, height)
+    drum_image = drums.get_image()
+    instrumentProjectionProcess = multiprocessing.Process(target=start_projecting, args=(drum_image, "RGB"))
+    instrumentProjectionProcess.start()
+
     # create tap detector object
     tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
 
@@ -50,3 +55,4 @@ if __name__ == "__main__":
     tapDetectorProcess.join()
     handLocationDetectionProcess.join()
     instrumentProcess.join()
+    instrumentProjectionProcess.terminate()
