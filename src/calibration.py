@@ -2,12 +2,14 @@ import numpy as np
 import cv2
 from cv2 import aruco
 import time
+from camera import Camera
 
 
 class ArucoBasedCalibration:
 
-    def __init__(self, camera, width=1080, height=1080):
-        self.camera = camera
+    def __init__(self, width=1080, height=1080):
+        # TODO: Camera object should be global
+        self.camera = Camera()
         image_size = (height, width)
         self.aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_50)
         aruco_image = np.ones(image_size, dtype=np.uint8) * 255
@@ -30,7 +32,7 @@ class ArucoBasedCalibration:
 
         print("Image Plane Coordinates - ", self.image_plane_coordinates)
 
-    def start_calibrating(self, max_tries=20):
+    def start_calibrating(self, max_tries=3):
         try_count = 0
 
         while try_count < max_tries:
@@ -51,3 +53,6 @@ class ArucoBasedCalibration:
 
         print("Calibration Failed")
         return None
+
+    def release_resources(self):
+        self.camera.stop_pipeline()

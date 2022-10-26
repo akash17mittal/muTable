@@ -1,23 +1,22 @@
 import multiprocessing
-from mock_tap_receiver import MockTapReceiver
-from camera import Camera
+from mock_tap_receiver import start_tap_receiving
 from calibration import ArucoBasedCalibration
-from hand_location_detector import HandLocationDetector
-from instruments.drums import Drums
+from hand_location_detector import start_hand_tracking
+from instruments.drums.drums import start_playing_drums
 
 if __name__ == "__main__":
-    # multiprocessing.set_start_method('forkserver')
+
+    width = 1080
+    height = 1080
 
     # creating a tap pipe
     tap_sender_conn, tap_receiver_conn = multiprocessing.Pipe()
     sound_signal_sender_conn, sound_signal_receiver_conn = multiprocessing.Pipe()
 
-    # create camera object
-    camera = Camera()
-
     # Do calibration step
-    calibration = ArucoBasedCalibration(camera)
+    calibration = ArucoBasedCalibration(width, height)
     calibration_matrix = calibration.start_calibrating()
+    calibration.release_resources()
 
     # if calibration_matrix is None:
     #     print("Couldn't Perform Calibration")
@@ -26,16 +25,13 @@ if __name__ == "__main__":
     print(calibration_matrix)
 
     # create tap detector object
-    tapDetector = MockTapReceiver(tap_sender_conn)
-    tapDetectorProcess = multiprocessing.Process(target=tapDetector.start_receiving, args=())
+    tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
 
     # create hand location detector
-    handLocationDetector = HandLocationDetector(camera, calibration_matrix, tap_receiver_conn, sound_signal_sender_conn)
-    handLocationDetectionProcess = multiprocessing.Process(target=handLocationDetector.start_hand_tracking, args=())
+    handLocationDetectionProcess = multiprocessing.Process(target=start_hand_tracking, args=(calibration_matrix, tap_receiver_conn, sound_signal_sender_conn))
 
     # create musical instrument
-    instrument = Drums(1080, 1080, sound_signal_receiver_conn)
-    instrumentProcess = multiprocessing.Process(target=instrument.start_producing_sound, args=())
+    instrumentProcess = multiprocessing.Process(target=start_playing_drums, args=(width, height, sound_signal_receiver_conn))
 
     # running processes
     tapDetectorProcess.start()

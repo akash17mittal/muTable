@@ -1,5 +1,7 @@
 import pyrealsense2 as rs
 import numpy as np
+import time
+import multiprocessing
 
 
 class Camera:
@@ -12,9 +14,29 @@ class Camera:
         self.pipeline.start(config)
 
     def get_current_image(self):
-        print("Here")
-        frames = self.pipeline.wait_for_frames()
-        print("There")
-        color_frame = frames.get_color_frame()
-        color_image = np.asanyarray(color_frame.get_data())
-        return color_image
+        print("Fetch an Image")
+        try:
+            frames = self.pipeline.wait_for_frames()
+            color_frame = frames.get_color_frame()
+            color_image = np.asanyarray(color_frame.get_data())
+            print("Color Image Retrieved Successfully")
+            return color_image
+        except Exception as e:
+            raise e
+
+    def stop_pipeline(self):
+        self.pipeline.stop()
+
+
+def acquire_images():
+    camera = Camera()
+    while 1:
+        img = camera.get_current_image()
+        time.sleep(1)
+
+
+if __name__ == '__main__':
+    p = multiprocessing.Process(target=acquire_images, args=())
+    p.start()
+    while 1:
+        time.sleep(1)
