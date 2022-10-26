@@ -2,9 +2,10 @@ import cv2
 import numpy as np
 from dataclasses import dataclass
 from ..circle import Circle
-import sounddevice as sd
+from sound_event import SoundEvent
 import soundfile as sf
 import pathlib
+import time
 
 
 @dataclass
@@ -40,7 +41,7 @@ class Drums:
         print(sound_path)
         pieces = [Piece(f"Piece{i + 1}",
                         Circle((int(piece_x_coords[i]), int(piece_y_coords[i])), int(piece_radius[i])),
-                        sf.read(f"{sound_path}/{i+1}.wav", dtype='float32'))
+                        sf.read(f"{sound_path}/{i + 1}.wav", dtype='float32'))
                   for i in range(3)]
         return pieces
 
@@ -61,10 +62,11 @@ class Drums:
         return drums
 
     def play_sound_from_point(self, sound_event):
+        import sounddevice as sd
         for piece in self.pieces:
             if piece.shape.is_point_inside((sound_event.locationX, sound_event.locationY)):
+                print(piece.name)
                 sd.play(piece.sound[0], piece.sound[1])
-        print("Hand Outside valid region")
 
 
 def start_playing_drums(width, height, sound_signal_receiver_conn):
@@ -73,3 +75,19 @@ def start_playing_drums(width, height, sound_signal_receiver_conn):
         sound_event = sound_signal_receiver_conn.recv()
         print("Produce Sound = ", sound_event)
         drums.play_sound_from_point(sound_event)
+
+
+def start_playing_dummy_drums(width, height, sound_signal_receiver_conn):
+    drums = Drums(width, height)
+    pieces = drums.pieces
+    while 1:
+        for i in range(2):
+            drums.play_sound_from_point(SoundEvent(0.1, pieces[2].shape.center[0], pieces[2].shape.center[1]))
+            time.sleep(0.3)
+            drums.play_sound_from_point(SoundEvent(0.1, pieces[0].shape.center[0], pieces[0].shape.center[1]))
+            time.sleep(0.3)
+        for i in range(2):
+            drums.play_sound_from_point(SoundEvent(0.1, pieces[1].shape.center[0], pieces[1].shape.center[1]))
+            time.sleep(0.3)
+            drums.play_sound_from_point(SoundEvent(0.1, pieces[0].shape.center[0], pieces[0].shape.center[1]))
+            time.sleep(0.3)
