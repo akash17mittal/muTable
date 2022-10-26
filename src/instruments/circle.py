@@ -4,7 +4,6 @@ import math
 class Circle:
 
     def __init__(self, center=(0, 0), radius=10):
-        print("###########", center)
         self.center = center
         self.radius = radius
 

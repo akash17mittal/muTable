@@ -48,7 +48,6 @@ class Drums:
 
         drums = np.zeros(shape=image_size, dtype=np.uint8)
         for piece in self.pieces:
-            print("**********************", piece.shape.center)
             drums = cv2.circle(drums, piece.shape.center, piece.shape.radius, yellow_color, -1)
             drums = cv2.circle(drums, piece.shape.center, int(piece.shape.radius*2/5), (0, 0, 0), -1)
             drums = cv2.circle(drums, piece.shape.center, piece.shape.radius, dark_yellow_color, int(0.025 * self.width))

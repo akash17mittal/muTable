@@ -3,6 +3,8 @@ from mock_tap_receiver import start_tap_receiving
 from calibration import ArucoBasedCalibration
 from hand_location_detector import start_hand_tracking
 from instruments.drums.drums import start_playing_drums
+from utils import get_aruco_image
+from projection import start_projecting
 
 if __name__ == "__main__":
 
@@ -14,9 +16,15 @@ if __name__ == "__main__":
     sound_signal_sender_conn, sound_signal_receiver_conn = multiprocessing.Pipe()
 
     # Do calibration step
-    calibration = ArucoBasedCalibration(width, height)
+    aruco_image, aruco_dict = get_aruco_image(width, height)
+
+    projectionProcess = multiprocessing.Process(target=start_projecting, args=(aruco_image, "L"))
+    projectionProcess.start()
+
+    calibration = ArucoBasedCalibration(aruco_image, aruco_dict)
     calibration_matrix = calibration.start_calibrating()
     calibration.release_resources()
+    projectionProcess.terminate()
 
     # if calibration_matrix is None:
     #     print("Couldn't Perform Calibration")
@@ -41,4 +49,4 @@ if __name__ == "__main__":
     # wait until processes finish
     tapDetectorProcess.join()
     handLocationDetectionProcess.join()
-    instrumentProcess.start()
+    instrumentProcess.join()
