@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 from dataclasses import dataclass
 from ..circle import Circle
+import sounddevice as sd
+import soundfile as sf
+import pathlib
 
 
 @dataclass
@@ -9,7 +12,7 @@ class Piece:
     """Data Class for Sound Event Object"""
     name: str
     shape: Circle
-    sound: str
+    sound: tuple
 
 
 class Drums:
@@ -33,8 +36,11 @@ class Drums:
         piece_x_coords = np.array([piece1_x, piece2_x, piece3_x]) * width
         piece_y_coords = np.array([piece1_y, piece2_y, piece3_y]) * height
         piece_radius = np.array(piece_widths) * width / 2
-
-        pieces = [Piece(f"Piece{i+1}", Circle((int(piece_x_coords[i]), int(piece_y_coords[i])), int(piece_radius[i])), f"./sound_data/{i + 1}.wav")
+        sound_path = f"{pathlib.Path(__file__).parent.resolve()}/sound_data"
+        print(sound_path)
+        pieces = [Piece(f"Piece{i + 1}",
+                        Circle((int(piece_x_coords[i]), int(piece_y_coords[i])), int(piece_radius[i])),
+                        sf.read(f"{sound_path}/{i+1}.wav", dtype='float32'))
                   for i in range(3)]
         return pieces
 
@@ -48,15 +54,22 @@ class Drums:
         drums = np.zeros(shape=image_size, dtype=np.uint8)
         for piece in self.pieces:
             drums = cv2.circle(drums, piece.shape.center, piece.shape.radius, yellow_color, -1)
-            drums = cv2.circle(drums, piece.shape.center, int(piece.shape.radius*2/5), (0, 0, 0), -1)
-            drums = cv2.circle(drums, piece.shape.center, piece.shape.radius, dark_yellow_color, int(0.025 * self.width))
+            drums = cv2.circle(drums, piece.shape.center, int(piece.shape.radius * 2 / 5), (0, 0, 0), -1)
+            drums = cv2.circle(drums, piece.shape.center, piece.shape.radius, dark_yellow_color,
+                               int(0.025 * self.width))
 
         return drums
+
+    def play_sound_from_point(self, sound_event):
+        for piece in self.pieces:
+            if piece.shape.is_point_inside((sound_event.locationX, sound_event.locationY)):
+                sd.play(piece.sound[0], piece.sound[1])
+        print("Hand Outside valid region")
 
 
 def start_playing_drums(width, height, sound_signal_receiver_conn):
     drums = Drums(width, height)
-    cv2.imwrite("./drums.jpg", drums.get_image())
     while 1:
         sound_event = sound_signal_receiver_conn.recv()
-        print("Sound Produced = ", sound_event)
+        print("Produce Sound = ", sound_event)
+        drums.play_sound_from_point(sound_event)
