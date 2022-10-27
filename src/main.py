@@ -5,6 +5,8 @@ from hand_location_detector import start_hand_tracking
 from instruments.drums.drums import start_playing_drums, Drums
 from utils import get_aruco_image
 from projection import start_projecting
+import cv2
+import numpy as np
 
 if __name__ == "__main__":
 
@@ -17,6 +19,7 @@ if __name__ == "__main__":
 
     # Do calibration step
     aruco_image, aruco_dict = get_aruco_image(width, height)
+    cv2.imwrite("markers.jpg", aruco_image)
 
     projectionProcess = multiprocessing.Process(target=start_projecting, args=(aruco_image, "L"))
     projectionProcess.start()
@@ -31,9 +34,14 @@ if __name__ == "__main__":
     #     exit()
 
     print(calibration_matrix)
+    hand_coordinates = np.dot(calibration_matrix, np.array([97, 146, 1]))
+    hand_coordinates = hand_coordinates / hand_coordinates[2]
+    print("************************", hand_coordinates)
 
     drums = Drums(width, height)
     drum_image = drums.get_image()
+    print("########################", drums.pieces[0].shape.center)
+    cv2.imwrite("./drums.jpg", drum_image)
     instrumentProjectionProcess = multiprocessing.Process(target=start_projecting, args=(drum_image, "RGB"))
     instrumentProjectionProcess.start()
 

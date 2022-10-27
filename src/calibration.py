@@ -20,15 +20,15 @@ class ArucoBasedCalibration:
 
         print("Image Plane Coordinates - ", self.image_plane_coordinates)
 
-    def start_calibrating(self, max_tries=3):
+    def start_calibrating(self, max_tries=15):
         try_count = 0
 
         while try_count < max_tries:
             curr_image = self.camera.get_current_image()
             corners, ids, rejectedImgPoints = aruco.detectMarkers(curr_image, self.aruco_dict,
                                                                   parameters=self.parameters)
-            projected_world_coordinates = np.array((0, 2))
-            image_world_coordinates = np.array((0, 2))
+            projected_world_coordinates = np.zeros((0, 2))
+            image_world_coordinates = np.zeros((0, 2))
             if ids is not None and ids.shape[0] >= self.count_threshold:
                 print(ids)
                 for i in range(ids.shape[0]):

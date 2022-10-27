@@ -35,6 +35,7 @@ class HandLocationDetector:
                     hand_y = int(hand_landmarks.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_MCP].y * 480)
                     hand_coordinates = np.dot(self.calibration_matrix, np.array([hand_x, hand_y, 1]))
                     hand_coordinates = hand_coordinates / hand_coordinates[2]
+                    print("Hand Coordinates - ", hand_coordinates)
                     self.sound_event_sender_conn.send(
                         SoundEvent(detected_tap.intensity, hand_coordinates[0], hand_coordinates[1]))
 
