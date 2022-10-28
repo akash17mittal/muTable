@@ -28,8 +28,7 @@ class Camera:
         self.pipeline.stop()
 
 
-def acquire_images(arr):
-    print(arr)
+def acquire_images():
     camera = Camera()
     while 1:
         img = camera.get_current_image()
@@ -37,8 +36,7 @@ def acquire_images(arr):
 
 
 if __name__ == '__main__':
-    a = np.zeros(10)
-    p = multiprocessing.Process(target=acquire_images, args=(a,))
+    p = multiprocessing.Process(target=acquire_images, args=())
     p.start()
     while 1:
         time.sleep(1)

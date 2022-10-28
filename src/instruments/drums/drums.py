@@ -66,6 +66,8 @@ class Drums:
         for piece in self.pieces:
             if piece.shape.is_point_inside((sound_event.locationX, sound_event.locationY)):
                 print(piece.name)
+                # play_till = {"Piece1":40000 , "Piece2":8000, "Piece3":40000}
+                # sd.play(piece.sound[0][:play_till[piece.name]], piece.sound[1])
                 sd.play(piece.sound[0], piece.sound[1])
 
 

@@ -13,7 +13,7 @@ class MockTapReceiver:
         while 1:
             print("Sending Tap Event")
             self.tap_sender_pipe_connection.send(Tap(Hand.LEFT, 0.1))
-            time.sleep(1)
+            time.sleep(0.5)
 
 
 def start_tap_receiving(tap_sender_conn):

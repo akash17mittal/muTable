@@ -31,8 +31,8 @@ class HandLocationDetector:
                 print(handedness)
             if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
-                    hand_x = int(hand_landmarks.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_MCP].x * 640)
-                    hand_y = int(hand_landmarks.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_MCP].y * 480)
+                    hand_x = int(hand_landmarks.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP].x * 640)
+                    hand_y = int(hand_landmarks.landmark[self.mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y * 480)
                     hand_coordinates = np.dot(self.calibration_matrix, np.array([hand_x, hand_y, 1]))
                     hand_coordinates = hand_coordinates / hand_coordinates[2]
                     print("Hand Coordinates - ", hand_coordinates)
