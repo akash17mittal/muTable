@@ -3,6 +3,7 @@ actionlib==1.13.2
 angles==1.9.13
 asttokens==2.0.8
 astunparse==1.6.3
+attrs==22.1.0
 backcall==0.2.0
 bondpy==1.8.6
 cachetools==5.2.0
@@ -65,6 +66,7 @@ Markdown==3.4.1
 MarkupSafe==2.1.1
 matplotlib==3.6.0
 matplotlib-inline==0.1.6
+mediapipe==0.8.11
 message-filters==1.15.14
 more-itertools==8.14.0
 mpmath==1.2.1
