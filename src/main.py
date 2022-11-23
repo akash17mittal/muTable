@@ -1,41 +1,28 @@
 import multiprocessing
+import time
+from multiprocessing.managers import BaseManager
 from mock_tap_receiver import start_tap_receiving
 from calibration import ArucoBasedCalibration
 from hand_location_detector import start_hand_tracking
 from instruments.drums.drums import start_playing_drums, Drums
 from utils import get_aruco_image
-from projection import start_projecting
+from projection import Projection, start_projecting
 import cv2
 
 if __name__ == "__main__":
 
-    width = 1080
+    width = 1920
     height = 1080
-    is_debug_mode = False
+    is_debug_mode = True
 
     # creating a tap pipe
     tap_sender_conn, tap_receiver_conn = multiprocessing.Pipe()
     sound_signal_sender_conn, sound_signal_receiver_conn = multiprocessing.Pipe()
 
     # Do calibration step
-    aruco_image, aruco_dict = get_aruco_image(width, height)
+    aruco_image, aruco_dict = get_aruco_image(height, height)
     if is_debug_mode:
         cv2.imwrite("markers.jpg", aruco_image)
-
-    projectionProcess = multiprocessing.Process(target=start_projecting, args=(aruco_image, "L"))
-    projectionProcess.start()
-
-    calibration = ArucoBasedCalibration(aruco_image, aruco_dict)
-    calibration_matrix = calibration.start_calibrating()
-    calibration.release_resources()
-
-    projectionProcess.terminate()
-
-    if calibration_matrix is None:
-        print("Couldn't Perform Calibration")
-        exit()
-
-    print("Calibration Matrix = ", calibration_matrix)
 
     drums = Drums(width, height)
     drum_image = drums.get_image()
@@ -43,17 +30,36 @@ if __name__ == "__main__":
     if is_debug_mode:
         cv2.imwrite("./drums.jpg", drum_image)
 
-    instrumentProjectionProcess = multiprocessing.Process(target=start_projecting, args=(drum_image, "RGB"))
-    instrumentProjectionProcess.start()
+    BaseManager.register('ProjectionData', Projection)
+    manager = BaseManager()
+    manager.start()
+    projectionData = manager.ProjectionData(aruco_image, "L")
+
+    projectionProcess = multiprocessing.Process(target=start_projecting, args=[projectionData])
+    projectionProcess.start()
+
+    calibration = ArucoBasedCalibration(aruco_image, aruco_dict)
+    calibration_matrix = calibration.start_calibrating()
+    calibration.release_resources()
+
+    if calibration_matrix is None:
+        print("Couldn't Perform Calibration")
+        exit()
+
+    print("Calibration Matrix = ", calibration_matrix)
+
+    projectionData.update_pic(drum_image, "RGB")
 
     # create tap detector object
     tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
 
     # create hand location detector
-    handLocationDetectionProcess = multiprocessing.Process(target=start_hand_tracking, args=(calibration_matrix, tap_receiver_conn, sound_signal_sender_conn))
+    handLocationDetectionProcess = multiprocessing.Process(target=start_hand_tracking, args=(
+    calibration_matrix, tap_receiver_conn, sound_signal_sender_conn))
 
     # create musical instrument
-    instrumentProcess = multiprocessing.Process(target=start_playing_drums, args=(width, height, sound_signal_receiver_conn))
+    instrumentProcess = multiprocessing.Process(target=start_playing_drums,
+                                                args=(width, height, sound_signal_receiver_conn))
 
     # running processes
     tapDetectorProcess.start()
@@ -64,4 +70,4 @@ if __name__ == "__main__":
     tapDetectorProcess.join()
     handLocationDetectionProcess.join()
     instrumentProcess.join()
-    instrumentProjectionProcess.terminate()
+    projectionProcess.terminate()

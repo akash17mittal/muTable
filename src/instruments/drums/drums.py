@@ -25,8 +25,8 @@ class Drums:
 
     def get_drum_pieces(self, width, height):
         piece_widths = [0.3, 0.23, 0.43]
-        angle = np.pi / 6
-        piece2_d = 0.03 + piece_widths[1] / 2 + piece_widths[2] / 2
+        angle = np.pi*0.23
+        piece2_d = 0.03 + piece_widths[2] / 2 + piece_widths[2] / 2
         piece1_x = 0.025 + piece_widths[0] / 2
         piece3_x = 1 - 0.025 - piece_widths[2] / 2
         piece2_x = piece3_x - np.cos(angle) * piece2_d
