@@ -62,6 +62,17 @@ class Drums:
 
         return drums
 
+    def get_highlighted_images(self):
+        base_drum_image = self.get_image()
+        image_size = (self.height, self.width, 3)
+        highlighted_images = {}
+        for piece in self.pieces:
+            drums_highlighted = np.zeros(shape=image_size, dtype=np.uint8)
+            drums_highlighted = cv2.circle(drums_highlighted, piece.shape.center, piece.shape.radius, (255, 255, 255), 1)
+            highlighted_piece = cv2.addWeighted(base_drum_image, 0.5, drums_highlighted, 0.5, 1.0)
+            highlighted_images[piece.name] = highlighted_piece
+        return highlighted_images
+
     def play_sound_from_point(self, sound_event):
         import sounddevice as sd
         for piece in self.pieces:

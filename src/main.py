@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     # start receiving tap events with location
     tapLocationProcess = multiprocessing.Process(target=start_receving_tap_events_with_location, args=(
-    width, height, space_for_ui, tap_location_receiver_conn, sound_signal_sender_conn))
+    width, height, space_for_ui, tap_location_receiver_conn, sound_signal_sender_conn, projectionData))
 
     # create musical instrument
     instrumentProcess = multiprocessing.Process(target=start_playing_drums,
