@@ -68,7 +68,7 @@ class Drums:
         highlighted_images = {}
         for piece in self.pieces:
             drums_highlighted = np.zeros(shape=image_size, dtype=np.uint8)
-            drums_highlighted = cv2.circle(drums_highlighted, piece.shape.center, piece.shape.radius, (255, 255, 255), 1)
+            drums_highlighted = cv2.circle(drums_highlighted, piece.shape.center, piece.shape.radius, (255, 255, 255), -1)
             highlighted_piece = cv2.addWeighted(base_drum_image, 0.5, drums_highlighted, 0.5, 1.0)
             highlighted_images[piece.name] = highlighted_piece
         return highlighted_images
