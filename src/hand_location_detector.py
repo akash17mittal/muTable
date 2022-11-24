@@ -2,17 +2,17 @@ import pyrealsense2 as rs
 import numpy as np
 import cv2
 import mediapipe as mp
-from sound_event import SoundEvent
+from sound_event import TapLocationEvent
 from camera import Camera
 
 
 class HandLocationDetector:
 
-    def __init__(self, calibratrion_matrix, tap_receiver_conn, sound_event_sender_conn):
+    def __init__(self, calibratrion_matrix, tap_receiver_conn, tap_location_sender_conn):
         self.mp_hands = mp.solutions.hands
         self.hands = self.mp_hands.Hands(model_complexity=0, min_detection_confidence=0.5, min_tracking_confidence=0.5)
         self.tap_receiver_conn = tap_receiver_conn
-        self.sound_event_sender_conn = sound_event_sender_conn
+        self.tap_location_sender_conn = tap_location_sender_conn
         self.calibration_matrix = calibratrion_matrix
         # TODO : Camera object should be shared as it is used by multiple modules
         self.camera = Camera()
@@ -36,10 +36,10 @@ class HandLocationDetector:
                     hand_coordinates = np.dot(self.calibration_matrix, np.array([hand_x, hand_y, 1]))
                     hand_coordinates = hand_coordinates / hand_coordinates[2]
                     print("Hand Coordinates - ", hand_coordinates)
-                    self.sound_event_sender_conn.send(
-                        SoundEvent(detected_tap.intensity, hand_coordinates[0], hand_coordinates[1]))
+                    self.tap_location_sender_conn.send(
+                        TapLocationEvent(detected_tap.intensity, hand_coordinates[0], hand_coordinates[1]))
 
 
-def start_hand_tracking(calibration_matrix, tap_receiver_conn, sound_signal_sender_conn):
-    handLocationDetector = HandLocationDetector(calibration_matrix, tap_receiver_conn, sound_signal_sender_conn)
+def start_hand_tracking(calibration_matrix, tap_receiver_conn, tap_location_sender_conn):
+    handLocationDetector = HandLocationDetector(calibration_matrix, tap_receiver_conn, tap_location_sender_conn)
     handLocationDetector.start_hand_tracking()

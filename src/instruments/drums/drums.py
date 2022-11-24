@@ -18,17 +18,18 @@ class Piece:
 
 class Drums:
 
-    def __init__(self, width=1080, height=1080):
+    def __init__(self, width=1920, height=1080, space_for_ui=0.15):
         self.height = height
         self.width = width
-        self.pieces = self.get_drum_pieces(width, height)
+        self.space_for_ui = space_for_ui
+        self.pieces = self.get_drum_pieces(width, height, space_for_ui)
 
-    def get_drum_pieces(self, width, height):
-        piece_widths = [0.3, 0.23, 0.43]
-        angle = np.pi*0.23
+    def get_drum_pieces(self, width, height, space_for_ui):
+        piece_widths = np.array([0.3, 0.23, 0.43]) * (1 - space_for_ui)
+        angle = np.pi * 0.25
         piece2_d = 0.03 + piece_widths[2] / 2 + piece_widths[2] / 2
         piece1_x = 0.025 + piece_widths[0] / 2
-        piece3_x = 1 - 0.025 - piece_widths[2] / 2
+        piece3_x = 1 - space_for_ui - 0.025 - piece_widths[2] / 2
         piece2_x = piece3_x - np.cos(angle) * piece2_d
 
         piece1_y = 0.45

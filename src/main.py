@@ -4,31 +4,40 @@ from multiprocessing.managers import BaseManager
 from mock_tap_receiver import start_tap_receiving
 from calibration import ArucoBasedCalibration
 from hand_location_detector import start_hand_tracking
+from event_manager import start_receving_tap_events_with_location
 from instruments.drums.drums import start_playing_drums, Drums
 from utils import get_aruco_image
 from projection import Projection, start_projecting
 import cv2
+from ui import UI
 
 if __name__ == "__main__":
 
     width = 1920
     height = 1080
+    space_for_ui = 0.15
     is_debug_mode = True
 
     # creating a tap pipe
     tap_sender_conn, tap_receiver_conn = multiprocessing.Pipe()
     sound_signal_sender_conn, sound_signal_receiver_conn = multiprocessing.Pipe()
+    tap_location_sender_conn, tap_location_receiver_conn = multiprocessing.Pipe()
 
     # Do calibration step
     aruco_image, aruco_dict = get_aruco_image(height, height)
     if is_debug_mode:
         cv2.imwrite("markers.jpg", aruco_image)
 
-    drums = Drums(width, height)
+    drums = Drums(width, height, space_for_ui)
     drum_image = drums.get_image()
 
+    ui = UI(width, height, space_for_ui)
+    ui_image = ui.get_ui_image()
+
+    drum_with_ui_image = drum_image + ui_image
+
     if is_debug_mode:
-        cv2.imwrite("./drums.jpg", drum_image)
+        cv2.imwrite("./drums.jpg", drum_with_ui_image)
 
     BaseManager.register('ProjectionData', Projection)
     manager = BaseManager()
@@ -48,14 +57,18 @@ if __name__ == "__main__":
 
     print("Calibration Matrix = ", calibration_matrix)
 
-    projectionData.update_pic(drum_image, "RGB")
+    projectionData.update_pic(drum_with_ui_image, "RGB")
 
     # create tap detector object
     tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
 
     # create hand location detector
     handLocationDetectionProcess = multiprocessing.Process(target=start_hand_tracking, args=(
-    calibration_matrix, tap_receiver_conn, sound_signal_sender_conn))
+        calibration_matrix, tap_receiver_conn, tap_location_sender_conn))
+
+    # start receiving tap events with location
+    tapLocationProcess = multiprocessing.Process(target=start_receving_tap_events_with_location, args=(
+    width, height, space_for_ui, tap_location_receiver_conn, sound_signal_sender_conn))
 
     # create musical instrument
     instrumentProcess = multiprocessing.Process(target=start_playing_drums,
@@ -64,10 +77,12 @@ if __name__ == "__main__":
     # running processes
     tapDetectorProcess.start()
     handLocationDetectionProcess.start()
+    tapLocationProcess.start()
     instrumentProcess.start()
 
     # wait until processes finish
     tapDetectorProcess.join()
     handLocationDetectionProcess.join()
+    tapLocationProcess.join()
     instrumentProcess.join()
     projectionProcess.terminate()
