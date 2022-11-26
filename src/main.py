@@ -2,6 +2,7 @@ import multiprocessing
 from multiprocessing.managers import BaseManager
 from mock_tap_receiver import start_tap_receiving
 from calibration import ArucoBasedCalibration
+from depth_calibration import DepthCalibration
 from hand_location_detector import start_hand_tracking
 from event_manager import start_receving_tap_events_with_location
 from instruments.drums.drums import start_playing_drums, Drums
@@ -51,6 +52,12 @@ if __name__ == "__main__":
     print("Calibration Matrix = ", calibration_matrix)
 
     projectionData.update_pic(drum_with_ui_image, "RGB")
+
+    depthCalibration = DepthCalibration()
+    surface_depth = depthCalibration.start_calibrating()
+    depthCalibration.release_resources()
+
+    print("Surface Depth = ", surface_depth)
 
     # create tap detector object
     tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
