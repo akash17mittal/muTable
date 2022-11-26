@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from ..circle import Circle
 from sound_event import SoundEvent
 import soundfile as sf
+from .ui import UI
 import pathlib
 import time
 
@@ -23,6 +24,8 @@ class Drums:
         self.width = width
         self.space_for_ui = space_for_ui
         self.pieces = self.get_drum_pieces(width, height, space_for_ui)
+        ui = UI(width, height, space_for_ui)
+        self.ui_image = ui.get_ui_image()
 
     def get_drum_pieces(self, width, height, space_for_ui):
         piece_widths = np.array([0.3, 0.23, 0.43]) * (1 - space_for_ui)
@@ -61,6 +64,9 @@ class Drums:
                                int(0.025 * self.width))
 
         return drums
+
+    def get_full_image_with_ui(self):
+        return self.ui_image + self.get_image()
 
     def get_highlighted_images(self):
         base_drum_image = self.get_image()

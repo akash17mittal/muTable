@@ -1,5 +1,4 @@
 import multiprocessing
-import time
 from multiprocessing.managers import BaseManager
 from mock_tap_receiver import start_tap_receiving
 from calibration import ArucoBasedCalibration
@@ -9,7 +8,6 @@ from instruments.drums.drums import start_playing_drums, Drums
 from utils import get_aruco_image
 from projection import Projection, start_projecting
 import cv2
-from ui import UI
 
 if __name__ == "__main__":
 
@@ -29,12 +27,7 @@ if __name__ == "__main__":
         cv2.imwrite("markers.jpg", aruco_image)
 
     drums = Drums(width, height, space_for_ui)
-    drum_image = drums.get_image()
-
-    ui = UI(width, height, space_for_ui)
-    ui_image = ui.get_ui_image()
-
-    drum_with_ui_image = drum_image + ui_image
+    drum_with_ui_image = drums.get_full_image_with_ui()
 
     if is_debug_mode:
         cv2.imwrite("./drums.jpg", drum_with_ui_image)
@@ -68,7 +61,7 @@ if __name__ == "__main__":
 
     # start receiving tap events with location
     tapLocationProcess = multiprocessing.Process(target=start_receving_tap_events_with_location, args=(
-    width, height, space_for_ui, tap_location_receiver_conn, sound_signal_sender_conn, projectionData))
+        width, height, space_for_ui, tap_location_receiver_conn, sound_signal_sender_conn, projectionData))
 
     # create musical instrument
     instrumentProcess = multiprocessing.Process(target=start_playing_drums,
