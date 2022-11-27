@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
     # create hand location detector
     handLocationDetectionProcess = multiprocessing.Process(target=start_hand_tracking, args=(
-        calibration_matrix, tap_receiver_conn, tap_location_sender_conn))
+        calibration_matrix, surface_depth, tap_receiver_conn, tap_location_sender_conn))
 
     # start receiving tap events with location
     tapLocationProcess = multiprocessing.Process(target=start_receving_tap_events_with_location, args=(

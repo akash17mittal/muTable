@@ -32,7 +32,6 @@ class Camera:
             aligned_frames = self.align.process(frames)
             color_frame = aligned_frames.get_color_frame()
             color_image = np.asanyarray(color_frame.get_data())
-            depth_frame = aligned_frames.get_depth_frame()
             return color_image
         except Exception as e:
             raise e
@@ -44,6 +43,18 @@ class Camera:
             depth_frame = aligned_frames.get_depth_frame()
             depth_image = np.asanyarray(depth_frame.get_data())
             return depth_image
+        except Exception as e:
+            raise e
+
+    def get_color_and_depth_image(self):
+        try:
+            frames = self.pipeline.wait_for_frames()
+            aligned_frames = self.align.process(frames)
+            color_frame = aligned_frames.get_color_frame()
+            color_image = np.asanyarray(color_frame.get_data())
+            depth_frame = aligned_frames.get_depth_frame()
+            depth_image = np.asanyarray(depth_frame.get_data())
+            return color_image, depth_image
         except Exception as e:
             raise e
 
