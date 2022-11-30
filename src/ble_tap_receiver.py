@@ -2,7 +2,9 @@
 import asyncio
 from typing import Any
 from tap import *
+import multiprocessing
 from bleak import BleakClient, discover
+import struct
 
 
 class Connection:
@@ -27,7 +29,7 @@ class Connection:
     def on_disconnect(self, client: BleakClient, future: asyncio.Future):
         self.connected = False
         # Put code here to handle what happens on disconnet.
-        print(f"Disconnected from {self.connected_device.name}!")
+        print(f"Disconnected from {self.connected_device}!")
 
     async def cleanup(self):
         if self.client:
@@ -50,7 +52,7 @@ class Connection:
             await self.client.connect()
             self.connected = await self.client.is_connected()
             if self.connected:
-                print(F"Connected to {self.connected_device.name}")
+                print(F"Connected to {self.connected_device}")
                 self.client.set_disconnected_callback(self.on_disconnect)
                 await self.client.start_notify(
                     self.read_characteristic, self.notification_handler,
@@ -60,7 +62,7 @@ class Connection:
                         break
                     await asyncio.sleep(3.0, loop=self.loop)
             else:
-                print(f"Failed to connect to {self.connected_device.name}")
+                print(f"Failed to connect to {self.connected_device}")
         except Exception as e:
             print(e)
 
@@ -71,10 +73,10 @@ class Connection:
         discovered_devices_macs = []
 
         for i, device in enumerate(devices):
-            discovered_devices_macs.append(device.name)
-            print(f"{i}: {device.name}")
+            discovered_devices_macs.append(device.address)
+            print(f"{i}: {device.address}")
 
-        if self.arduino_mac not in discovered_devices_macs:
+        if str.upper(self.arduino_mac) not in discovered_devices_macs:
             print("Device Not Found")
             return
 
@@ -83,13 +85,15 @@ class Connection:
         self.client = BleakClient(self.arduino_mac, loop=self.loop)
 
     def notification_handler(self, sender: str, data: Any):
-        tap_detected = int.from_bytes(data, byteorder="big")
+        tap_detected = struct.unpack('<f', data)
+        print("Data from - ", sender, " is = ", tap_detected)
+        print(tap_detected)
         self.tap_sender_conn.send(Tap(self.hand, tap_detected))
 
 
 def left_tap_receiver(tap_sender_conn):
-    read_characteristic = "00001143-0000-1000-8000-00805f9b34fb"
-    left_arduino_mac = "db:eb:8d:2b:72:b9"
+    read_characteristic = "C8F88594-2217-0CA6-8F06-A4270B675D68"
+    left_arduino_mac = "5d:c8:38:fd:3c:2f"
     # Create the event loop.
     loop = asyncio.get_event_loop()
 
@@ -107,8 +111,8 @@ def left_tap_receiver(tap_sender_conn):
 
 
 def right_tap_receiver(tap_sender_conn):
-    read_characteristic = "00001143-0000-1000-8000-00805f9b34fa"
-    right_arduino_mac = "db:eb:8d:2b:72:b2"
+    read_characteristic = "C8F88594-2217-0CA6-8F06-A4270B675D68"
+    right_arduino_mac = "24:55:06:86:c2:a3"
     # Create the event loop.
     loop = asyncio.get_event_loop()
 
@@ -123,3 +127,10 @@ def right_tap_receiver(tap_sender_conn):
     finally:
         print("Disconnecting...")
         loop.run_until_complete(connection.cleanup())
+
+
+if __name__ == '__main__':
+    tap_sender_conn, tap_receiver_conn = multiprocessing.Pipe()
+    leftTapDetectorProcess = multiprocessing.Process(target=left_tap_receiver, args=(tap_sender_conn,))
+    leftTapDetectorProcess.start()
+    leftTapDetectorProcess.join()
