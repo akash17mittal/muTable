@@ -26,7 +26,7 @@ class Connection:
         self.arduino_mac = arduino_mac
         self.hand = hand
 
-    def on_disconnect(self, client: BleakClient, future: asyncio.Future):
+    def on_disconnect(self, client: BleakClient):
         self.connected = False
         # Put code here to handle what happens on disconnet.
         print(f"Disconnected from {self.connected_device}!")
@@ -74,7 +74,7 @@ class Connection:
 
         for i, device in enumerate(devices):
             discovered_devices_macs.append(device.address)
-            print(f"{i}: {device.address}")
+            # print(f"{i}: {device.address}")
 
         if str.upper(self.arduino_mac) not in discovered_devices_macs:
             print("Device Not Found")
@@ -86,7 +86,7 @@ class Connection:
 
     def notification_handler(self, sender: str, data: Any):
         tap_detected = struct.unpack('<f', data)
-        print("Data from - ", sender, " is = ", tap_detected)
+        print("Data from - ", self.hand, " is = ", tap_detected)
         print(tap_detected)
         self.tap_sender_conn.send(Tap(self.hand, tap_detected))
 
@@ -132,5 +132,8 @@ def right_tap_receiver(tap_sender_conn):
 if __name__ == '__main__':
     tap_sender_conn, tap_receiver_conn = multiprocessing.Pipe()
     leftTapDetectorProcess = multiprocessing.Process(target=left_tap_receiver, args=(tap_sender_conn,))
+    rightTapDetectorProcess = multiprocessing.Process(target=right_tap_receiver, args=(tap_sender_conn,))
     leftTapDetectorProcess.start()
+    rightTapDetectorProcess.start()
     leftTapDetectorProcess.join()
+    rightTapDetectorProcess.join()
