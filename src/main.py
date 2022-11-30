@@ -8,6 +8,7 @@ from event_manager import start_receving_tap_events_with_location
 from instruments.drums.drums import start_playing_drums, Drums
 from utils import get_aruco_image
 from projection import Projection, start_projecting
+from ble_tap_receiver import left_tap_receiver, right_tap_receiver
 import cv2
 
 if __name__ == "__main__":
@@ -60,7 +61,9 @@ if __name__ == "__main__":
     print("Surface Depth = ", surface_depth)
 
     # create tap detector object
-    tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
+    # tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
+    leftTapDetectorProcess = multiprocessing.Process(target=left_tap_receiver, args=(tap_sender_conn,))
+    rightTapDetectorProcess = multiprocessing.Process(target=right_tap_receiver, args=(tap_sender_conn,))
 
     # create hand location detector
     handLocationDetectionProcess = multiprocessing.Process(target=start_hand_tracking, args=(
@@ -75,13 +78,15 @@ if __name__ == "__main__":
                                                 args=(width, height, sound_signal_receiver_conn))
 
     # running processes
-    tapDetectorProcess.start()
+    leftTapDetectorProcess.start()
+    rightTapDetectorProcess.start()
     handLocationDetectionProcess.start()
     tapLocationProcess.start()
     instrumentProcess.start()
 
     # wait until processes finish
-    tapDetectorProcess.join()
+    leftTapDetectorProcess.join()
+    rightTapDetectorProcess.join()
     handLocationDetectionProcess.join()
     tapLocationProcess.join()
     instrumentProcess.join()
