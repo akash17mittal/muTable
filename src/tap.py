@@ -12,3 +12,4 @@ class Tap:
     """Data Class for Tap Object"""
     hand: Hand
     intensity: float
+    checkHandLocation: bool

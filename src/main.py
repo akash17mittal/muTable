@@ -61,7 +61,7 @@ if __name__ == "__main__":
     print("Surface Depth = ", surface_depth)
 
     # create tap detector object
-    # tapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
+    # leftTapDetectorProcess = multiprocessing.Process(target=start_tap_receiving, args=(tap_sender_conn,))
     leftTapDetectorProcess = multiprocessing.Process(target=left_tap_receiver, args=(tap_sender_conn,))
     rightTapDetectorProcess = multiprocessing.Process(target=right_tap_receiver, args=(tap_sender_conn,))
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
     # create musical instrument
     instrumentProcess = multiprocessing.Process(target=start_playing_drums,
-                                                args=(width, height, sound_signal_receiver_conn))
+                                                args=(width, height, sound_signal_receiver_conn, projectionData))
 
     # running processes
     leftTapDetectorProcess.start()

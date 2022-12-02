@@ -7,6 +7,13 @@ import soundfile as sf
 from .ui import UI
 import pathlib
 import time
+from _thread import *
+
+
+def update_pair_pics(projectorData, firstPic, secondPic):
+    projectorData.update_pic(firstPic, "RGB")
+    time.sleep(0.5)
+    projectorData.update_pic(secondPic, "RGB")
 
 
 @dataclass
@@ -26,6 +33,8 @@ class Drums:
         self.pieces = self.get_drum_pieces(width, height, space_for_ui)
         ui = UI(width, height, space_for_ui)
         self.ui_image = ui.get_ui_image()
+        self.highlighted_images_with_ui = self.get_highlighted_images()
+        self.full_image_with_ui = self.get_full_image_with_ui()
 
     def get_drum_pieces(self, width, height, space_for_ui):
         piece_widths = np.array([0.3, 0.23, 0.43]) * (1 - space_for_ui)
@@ -68,7 +77,7 @@ class Drums:
     def get_full_image_with_ui(self):
         return self.ui_image + self.get_image()
 
-    def get_highlighted_images(self):
+    def get_highlighted_images(self, ui_image=None):
         base_drum_image = self.get_image()
         image_size = (self.height, self.width, 3)
         highlighted_images = {}
@@ -77,24 +86,30 @@ class Drums:
             drums_highlighted = cv2.circle(drums_highlighted, piece.shape.center, piece.shape.radius, (255, 255, 255), -1)
             highlighted_piece = cv2.addWeighted(base_drum_image, 0.5, drums_highlighted, 0.5, 1.0)
             highlighted_images[piece.name] = highlighted_piece
+            if ui_image is not None:
+                highlighted_images[piece.name] += ui_image
         return highlighted_images
 
-    def play_sound_from_point(self, sound_event):
+    def play_sound_from_point(self, sound_event, projectionData=None):
         import sounddevice as sd
         for piece in self.pieces:
             if piece.shape.is_point_inside((sound_event.locationX, sound_event.locationY)):
                 print(piece.name)
-                # play_till = {"Piece1":40000 , "Piece2":8000, "Piece3":40000}
+                # start_new_thread(update_pair_pics, (projectionData, self.highlighted_images_with_ui[piece.name], self.full_image_with_ui))
+                # play_till = {"Piece1": 40000, "Piece2": 8000, "Piece3": 40000}
                 # sd.play(piece.sound[0][:play_till[piece.name]], piece.sound[1])
                 sd.play(piece.sound[0], piece.sound[1])
+                if projectionData is not None:
+                    update_pair_pics(projectionData, self.highlighted_images_with_ui[piece.name], self.full_image_with_ui)
 
 
-def start_playing_drums(width, height, sound_signal_receiver_conn):
+def start_playing_drums(width, height, sound_signal_receiver_conn, projectionData):
     drums = Drums(width, height)
     while 1:
+        print("Playing drums")
         sound_event = sound_signal_receiver_conn.recv()
         print("Produce Sound = ", sound_event)
-        drums.play_sound_from_point(sound_event)
+        drums.play_sound_from_point(sound_event, projectionData)
 
 
 def start_playing_dummy_drums(width, height, sound_signal_receiver_conn):

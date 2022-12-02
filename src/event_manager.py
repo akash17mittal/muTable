@@ -3,6 +3,7 @@ from instruments.drums.drums import Drums
 import time
 
 
+
 def play_predefined_sound(width, height, projectionData):
     drums = Drums(width, height)
     pieces = drums.pieces
