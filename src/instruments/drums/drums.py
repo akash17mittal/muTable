@@ -94,12 +94,13 @@ class Drums:
         import sounddevice as sd
         for piece in self.pieces:
             if piece.shape.is_point_inside((sound_event.locationX, sound_event.locationY)):
-                amplifier = 1.0
+                sound_to_played = piece.sound[0]
                 if abs(sound_event.intensity) < 1.2:
-                    amplifier = amplifier/2
+                    sound_to_played = sound_to_played*0.2
                 # play_till = {"Piece1": 40000, "Piece2": 8000, "Piece3": 40000}
                 # sd.play(piece.sound[0][:play_till[piece.name]], piece.sound[1])
-                sd.play(piece.sound[0]*amplifier, piece.sound[1])
+
+                sd.play(sound_to_played, piece.sound[1])
                 if projectionData is not None:
                     update_pair_pics(projectionData, self.highlighted_images_with_ui[piece.name], self.full_image_with_ui)
 

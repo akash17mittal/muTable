@@ -86,7 +86,7 @@ class Connection:
     def notification_handler(self, sender: str, data: Any):
         tap_detected = struct.unpack('<f', data)
         print("Data from - ", self.hand, " is = ", tap_detected)
-        self.tap_sender_conn.send(Tap(self.hand, tap_detected, True))
+        self.tap_sender_conn.send(Tap(self.hand, tap_detected[0], True))
 
 
 def left_tap_receiver(tap_sender_conn):

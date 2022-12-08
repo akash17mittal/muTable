@@ -9,19 +9,20 @@ def play_predefined_sound(width, height, projectionData):
     pieces = drums.pieces
     highlighed_images = drums.get_highlighted_images()
     time_delay = 0.35
+    intensity = 1.8
     for num_reps in range(1):
         for i in range(2):
-            drums.play_sound_from_point(SoundEvent(0.1, pieces[2].shape.center[0], pieces[2].shape.center[1]))
+            drums.play_sound_from_point(SoundEvent(intensity, pieces[2].shape.center[0], pieces[2].shape.center[1]))
             projectionData.update_pic(highlighed_images["Piece3"], "RGB")
             time.sleep(time_delay)
-            drums.play_sound_from_point(SoundEvent(0.1, pieces[0].shape.center[0], pieces[0].shape.center[1]))
+            drums.play_sound_from_point(SoundEvent(intensity, pieces[0].shape.center[0], pieces[0].shape.center[1]))
             projectionData.update_pic(highlighed_images["Piece1"], "RGB")
             time.sleep(time_delay)
         for i in range(2):
-            drums.play_sound_from_point(SoundEvent(0.1, pieces[1].shape.center[0], pieces[1].shape.center[1]))
+            drums.play_sound_from_point(SoundEvent(intensity, pieces[1].shape.center[0], pieces[1].shape.center[1]))
             projectionData.update_pic(highlighed_images["Piece2"], "RGB")
             time.sleep(time_delay)
-            drums.play_sound_from_point(SoundEvent(0.1, pieces[0].shape.center[0], pieces[0].shape.center[1]))
+            drums.play_sound_from_point(SoundEvent(intensity, pieces[0].shape.center[0], pieces[0].shape.center[1]))
             projectionData.update_pic(highlighed_images["Piece1"], "RGB")
             time.sleep(time_delay)
 
