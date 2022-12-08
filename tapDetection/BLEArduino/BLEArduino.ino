@@ -113,7 +113,7 @@ void loop()
                 }
   
                 if (tap==1.0){
-                  floatValueCharacteristicZ.writeValue(current_z);
+                  floatValueCharacteristicZ.writeValue(diff);
 //                  Serial.print(current_z);
 //                  Serial.println();
                   tap=0.0;

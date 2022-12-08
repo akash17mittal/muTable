@@ -29,5 +29,5 @@ class UI:
         for piece in self.pieces:
             ui = cv2.rectangle(ui, piece[1].topLeft, piece[1].bottomRight, yellow_color, -1)
             ui = cv2.putText(ui, piece[0], piece[2], font, fontScale, color, thickness, cv2.LINE_AA)
-
+            ui[piece[1].topLeft[1]:piece[1].bottomRight[1], piece[1].topLeft[0]:piece[1].bottomRight[0], :] = cv2.rotate(ui[piece[1].topLeft[1]:piece[1].bottomRight[1], piece[1].topLeft[0]:piece[1].bottomRight[0], :], cv2.ROTATE_180)
         return ui

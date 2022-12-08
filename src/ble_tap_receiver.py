@@ -1,4 +1,3 @@
-# https://tutorialedge.net/python/concurrency/asyncio-event-loops-tutorial/
 import asyncio
 from typing import Any
 from tap import *
@@ -87,7 +86,6 @@ class Connection:
     def notification_handler(self, sender: str, data: Any):
         tap_detected = struct.unpack('<f', data)
         print("Data from - ", self.hand, " is = ", tap_detected)
-        print(tap_detected)
         self.tap_sender_conn.send(Tap(self.hand, tap_detected, True))
 
 
@@ -113,7 +111,8 @@ def left_tap_receiver(tap_sender_conn):
 def right_tap_receiver(tap_sender_conn):
     read_characteristic = "C8F88594-2217-0CA6-8F06-A4270B675D68"
     # right_arduino_mac = "24:55:06:86:c2:a3"
-    right_arduino_mac = "db:eb:8d:2b:72:b9"
+    # right_arduino_mac = "db:eb:8d:2b:72:b9"
+    right_arduino_mac = "24:55:06:86:c2:a3"
     # Create the event loop.
     loop = asyncio.get_event_loop()
 
