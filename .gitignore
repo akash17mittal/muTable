@@ -133,3 +133,5 @@ hands-segmentation-pytorch/
 handtracking/
 
 experiments/depth_maps/
+
+*.jpg

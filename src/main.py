@@ -16,7 +16,7 @@ if __name__ == "__main__":
     width = 1920
     height = 1080
     space_for_ui = 0.15
-    is_debug_mode = True
+    is_debug_mode = False
 
     # creating a tap pipe
     tap_sender_conn, tap_receiver_conn = multiprocessing.Pipe()
