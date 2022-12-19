@@ -19,9 +19,14 @@ Turn any surface into a musical instrument.
 - `pip3 install -r requirements.txt`
 - Program the arduino/motion sensing bands using `tapDetection/BLEArduino/BLEArduino.ino`
 - Run `python3 src/main.py`
-- Wait for about 30 seconds for the system to auto-calibrate and motion sensing bands to get connected to the system
+- Wait for about 30 seconds for the system to auto-calibrate and motion sensing bands to get connected to the system.
 
 [![ArUco marker based camera calibration](https://img.youtube.com/vi/orv01SSwh58/0.jpg)](https://youtu.be/orv01SSwh58)
+
+## Code Overview
+- Instrument specific code is here: `src/instruments`
+- Sound bank is stored here: `src/instruments/drums/sound_data`
+- Camera specific configuration is here: `src/camera.py` Current configuration is based on Intel Realsense camera.
 
 # System Overview and Demo
 [![Mutable System Overview and Demo](https://img.youtube.com/vi/Gw5PWL1ZBjk/0.jpg)](https://www.youtube.com/watch?v=Gw5PWL1ZBjk&list=PLX5OEonfMsZr1u8KjgrY1cMp8poRRv-LF&index=8)
